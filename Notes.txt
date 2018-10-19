@@ -1,0 +1,75 @@
+Plan
+
+Use tesseract with python to perform OCR
+Output files in HOCR format. 
+
+HOCR should include a 'textangle' parameter, if not we can perform OCR on the raw page and the page flipped 90 degrees.
+
+If we find vertical 6-digit numbers on an early page, declare that page to have parts on it and analyze further
+	to identify parts, we can try
+		look for textangle vertical
+		combine all adjacent spans, and add to a list
+		use a regex to find 6 digit numbers 
+			(do all ikea part numbers begin with 1?)
+
+For each 6-digit part number that we know of from ikea database:
+	Take the non-rotated OCR of that page
+	draw a radius around the centroid of the part number. Start small
+		Look for any text
+		If we find text
+			Look to see whether it contains an X
+			if so
+				Combine all spans adjacent to that X
+				extract the numeric part that precedes the X
+
+
+All manuals can be downloaded here: http://www.ikea.com/ms/en_US/customer_service/assembly_instructions.html#2
+Manuals links are javascript, can use python to parse out the actual links to the manuals themselves
+
+https://github.com/madmaze/pytesseract/blob/master/src/pytesseract.py
+
+
+
+FILTERING With regular expressions
+
+<\/a.*?.open\('
+replace with
+\n
+
+','800.*?Link2">
+replace with
+\t
+
+<span class="grey5"><a href="javascript:window.open\('
+replace with
+NULL
+
+#MAKING WGET FILE
+
+\n
+replace with
+\nwget http://www.ikea.com
+
+\t.*?\n
+replace with
+\n
+
+#MAKING PRODUCT TABLE
+
+\n.*?/assembly/[A-Z]/
+replace with
+\n
+#actually, this doesn't end up working, because ikea has an O_P_Q category. so instead we use
+\n.*?/assembly/.*?/
+replace with
+\n
+
+.pdf
+replace with
+NULL
+
+"
+replace with
+NULL
+
+In doing all of this, it's interesting to notice Ikea has no products available which start with the letter Q
